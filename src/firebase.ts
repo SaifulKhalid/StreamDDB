@@ -2,25 +2,27 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfigLocal from '../firebase-applet-config.json';
 
 // Support full portability and custom deployment configs via environment variables
 const firebaseConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigLocal.apiKey || "",
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigLocal.authDomain || "",
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigLocal.projectId || "",
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigLocal.storageBucket || "",
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigLocal.messagingSenderId || "",
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfigLocal.appId || "",
-  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string) || firebaseConfigLocal.measurementId || "",
-  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfigLocal.firestoreDatabaseId || "",
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || "AIzaSyDua-qPYK1xJ5wEsvyjSNouXEkx4GZrVr4",
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || "gen-lang-client-0552105030.firebaseapp.com",
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || "gen-lang-client-0552105030",
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || "gen-lang-client-0552105030.firebasestorage.app",
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || "505833470714",
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || "1:505833470714:web:5d7e65873ff773da9ca743",
+  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string) || "",
+  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || "ai-studio-60aca418-babc-48dc-bccd-7043c09a55b8"
 };
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Services
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Initialize Services (Safely use custom Firestore Database ID if specified)
+export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== "(default)"
+  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
+  : getFirestore(app);
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
