@@ -2,11 +2,12 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
+import "dotenv/config";
 
 const app = express();
 const PORT = 3000;
 const CACHE_FILE = path.join(process.cwd(), "channels-cache.json");
-const M3U_SOURCE_URL = "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/playlist.m3u";
+const M3U_SOURCE_URL = process.env.IPTV_SOURCE_URL || "https://raw.githubusercontent.com/abusaeeidx/Mrgify-BDIX-IPTV/main/playlist.m3u";
 
 // Enable JSON parsing
 app.use(express.json());

@@ -1,7 +1,20 @@
+/// <reference types="vite/client" />
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import firebaseConfigLocal from '../firebase-applet-config.json';
+
+// Support full portability and custom deployment configs via environment variables
+const firebaseConfig = {
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfigLocal.apiKey || "",
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigLocal.authDomain || "",
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigLocal.projectId || "",
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigLocal.storageBucket || "",
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigLocal.messagingSenderId || "",
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfigLocal.appId || "",
+  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string) || firebaseConfigLocal.measurementId || "",
+  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfigLocal.firestoreDatabaseId || "",
+};
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
