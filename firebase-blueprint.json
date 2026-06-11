@@ -1,0 +1,97 @@
+{
+  "entities": {
+    "Playlist": {
+      "title": "Playlist",
+      "description": "An IPTV M3U Playlist metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "channelCount": { "type": "integer" },
+        "createdAt": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "channelCount", "createdAt", "userId"]
+    },
+    "Channel": {
+      "title": "Channel",
+      "description": "An IPTV streaming channel",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "logo": { "type": "string" },
+        "groupTitle": { "type": "string" },
+        "url": { "type": "string" },
+        "tvgId": { "type": "string" }
+      },
+      "required": ["id", "name", "url"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "A favorited channel",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "channelId": { "type": "string" },
+        "channelName": { "type": "string" },
+        "logo": { "type": "string" },
+        "url": { "type": "string" },
+        "playlistId": { "type": "string" },
+        "groupTitle": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "channelId", "channelName", "url", "playlistId", "createdAt"]
+    },
+    "History": {
+      "title": "History",
+      "description": "Watch history record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "channelId": { "type": "string" },
+        "channelName": { "type": "string" },
+        "logo": { "type": "string" },
+        "url": { "type": "string" },
+        "playlistId": { "type": "string" },
+        "watchedAt": { "type": "string" },
+        "duration": { "type": "integer" }
+      },
+      "required": ["id", "channelId", "channelName", "url", "playlistId", "watchedAt"]
+    },
+    "UserSetting": {
+      "title": "UserSetting",
+      "description": "User specific app settings",
+      "type": "object",
+      "properties": {
+        "theme": { "type": "string" },
+        "streamType": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["theme", "streamType", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/playlists/{playlistId}": {
+      "schema": "Playlist",
+      "description": "IPTV M3U Playlists"
+    },
+    "/playlists/{playlistId}/channels/{channelId}": {
+      "schema": "Channel",
+      "description": "Channels belonging to a playlist"
+    },
+    "/users/{userId}/favorites/{favoriteId}": {
+      "schema": "Favorite",
+      "description": "User favorite channels"
+    },
+    "/users/{userId}/history/{historyId}": {
+      "schema": "History",
+      "description": "User watch history"
+    },
+    "/users/{userId}/settings/current": {
+      "schema": "UserSetting",
+      "description": "User specific settings"
+    }
+  }
+}

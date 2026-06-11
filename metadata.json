@@ -1,0 +1,8 @@
+{
+  "name": "Remix: StreamDDB",
+  "description": "A modern, self-hosted IPTV and streaming management platform designed for personal and authorized content use.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

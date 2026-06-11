@@ -1,0 +1,115 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Reusable Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // 3. Playlists collection rules
+    match /playlists/{playlistId} {
+      allow get: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() &&
+        incoming().id == playlistId &&
+        isValidId(playlistId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().name is string && incoming().name.size() <= 256 &&
+        (incoming().channelCount is int || incoming().channelCount is float) &&
+        incoming().createdAt == request.time;
+        
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        incoming().userId == request.auth.uid &&
+        incoming().name is string && incoming().name.size() <= 256 &&
+        (incoming().channelCount is int || incoming().channelCount is float) &&
+        incoming().id == playlistId &&
+        incoming().diff(resource.data).affectedKeys().hasOnly(['name', 'channelCount', 'url']);
+        
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      // Playlist Subcollection for Channels
+      match /channels/{channelId} {
+        allow read, list: if isSignedIn() && 
+          get(/databases/$(database)/documents/playlists/$(playlistId)).data.userId == request.auth.uid;
+          
+        allow create: if isSignedIn() &&
+          get(/databases/$(database)/documents/playlists/$(playlistId)).data.userId == request.auth.uid &&
+          incoming().id == channelId &&
+          isValidId(channelId) &&
+          incoming().name is string && incoming().name.size() <= 512 &&
+          incoming().url is string && incoming().url.size() <= 8192;
+          
+        allow update: if isSignedIn() && 
+          get(/databases/$(database)/documents/playlists/$(playlistId)).data.userId == request.auth.uid &&
+          incoming().name is string && incoming().name.size() <= 512 &&
+          incoming().url is string && incoming().url.size() <= 8192 &&
+          incoming().diff(resource.data).affectedKeys().hasOnly(['name', 'logo', 'groupTitle', 'url', 'tvgId']);
+          
+        allow delete: if isSignedIn() && 
+          get(/databases/$(database)/documents/playlists/$(playlistId)).data.userId == request.auth.uid;
+      }
+    }
+
+    // 4. User favorites
+    match /users/{userId}/favorites/{favoriteId} {
+      allow read, list: if isOwner(userId);
+      
+      allow create: if isOwner(userId) &&
+        incoming().id == favoriteId &&
+        isValidId(favoriteId) &&
+        incoming().channelId is string && incoming().channelId.size() <= 256 &&
+        incoming().channelName is string && incoming().channelName.size() <= 512 &&
+        incoming().url is string && incoming().url.size() <= 8192 &&
+        incoming().createdAt == request.time;
+        
+      allow delete: if isOwner(userId);
+    }
+
+    // 5. User watch history
+    match /users/{userId}/history/{historyId} {
+      allow read, list: if isOwner(userId);
+      
+      allow create: if isOwner(userId) &&
+        incoming().id == historyId &&
+        isValidId(historyId) &&
+        incoming().channelId is string && incoming().channelId.size() <= 256 &&
+        incoming().channelName is string && incoming().channelName.size() <= 512 &&
+        incoming().url is string && incoming().url.size() <= 8192 &&
+        incoming().watchedAt == request.time;
+        
+      allow delete: if isOwner(userId);
+    }
+
+    // 6. User settings
+    match /users/{userId}/settings/{settingId} {
+      allow read, list: if isOwner(userId);
+      
+      allow create, update: if isOwner(userId) &&
+        incoming().theme is string && incoming().theme.size() <= 64 &&
+        incoming().streamType is string && incoming().streamType.size() <= 64 &&
+        incoming().updatedAt == request.time;
+        
+      allow delete: if isOwner(userId);
+    }
+  }
+}
